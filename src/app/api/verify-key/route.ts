@@ -1,14 +1,30 @@
 import { NextResponse } from "next/server";
-import { verifyKey } from "@/lib/keyStore";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 export async function POST(req: Request) {
-  const { key } = await req.json();
+  const { key, deviceId } = await req.json();
 
-  const valid = verifyKey(key);
+  const ref = doc(db, "keys", key);
+  const snap = await getDoc(ref);
 
-  if (!valid) {
+  if (!snap.exists()) {
     return NextResponse.json({ success: false });
   }
 
-  return NextResponse.json({ success: true });
+  const data = snap.data();
+
+  // first use → bind device
+  if (!data.deviceId) {
+    await updateDoc(ref, { deviceId });
+    return NextResponse.json({ success: true });
+  }
+
+  // same device → allow
+  if (data.deviceId === deviceId) {
+    return NextResponse.json({ success: true });
+  }
+
+  // different device → block
+  return NextResponse.json({ success: false });
 }
