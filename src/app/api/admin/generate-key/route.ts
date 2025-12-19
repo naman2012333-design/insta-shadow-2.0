@@ -1,15 +1,7 @@
-import { NextResponse } from "next/server"
-import crypto from "crypto"
-import { getKeyStore } from "@/lib/keys"
+import { NextResponse } from "next/server";
+import { generateKey } from "@/lib/keys";
 
 export async function POST() {
-  const key = crypto.randomBytes(16).toString("hex")
-
-  const store = getKeyStore()
-  store.add(key)
-
-  return NextResponse.json({
-    success: true,
-    key,
-  })
+  const key = generateKey();
+  return NextResponse.json({ key });
 }
