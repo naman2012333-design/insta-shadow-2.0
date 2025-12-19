@@ -1,16 +1,23 @@
-export const validKeys = new Set<string>();
+type KeyRecord = {
+  used: boolean;
+  deviceId?: string;
+};
 
-export function generateKey() {
-  const key =
-    "IS-" + Math.random().toString(36).substring(2, 10).toUpperCase();
-  validKeys.add(key);
+const keyStore = new Map<string, KeyRecord>();
+
+export function generateKey(): string {
+  const key = crypto.randomUUID().replace(/-/g, "").slice(0, 10);
+  keyStore.set(key, { used: false });
   return key;
 }
 
-export function useKey(key: string) {
-  if (validKeys.has(key)) {
-    validKeys.delete(key); // one-time use
-    return true;
-  }
-  return false;
+export function verifyKey(key: string, deviceId: string): boolean {
+  const record = keyStore.get(key);
+  if (!record) return false;
+
+  if (record.used) return record.deviceId === deviceId;
+
+  record.used = true;
+  record.deviceId = deviceId;
+  return true;
 }
