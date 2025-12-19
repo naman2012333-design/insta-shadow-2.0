@@ -1,23 +1,29 @@
-type KeyRecord = {
+import crypto from "crypto";
+
+type KeyData = {
+  key: string;
   used: boolean;
+  createdAt: number;
   deviceId?: string;
 };
 
-const keyStore = new Map<string, KeyRecord>();
+let keys: KeyData[] = [];
 
-export function generateKey(): string {
-  const key = crypto.randomUUID().replace(/-/g, "").slice(0, 10);
-  keyStore.set(key, { used: false });
-  return key;
+export function generateKey() {
+  return crypto.randomBytes(4).toString("hex").toUpperCase();
 }
 
-export function verifyKey(key: string, deviceId: string): boolean {
-  const record = keyStore.get(key);
-  if (!record) return false;
+export async function saveKey(data: KeyData) {
+  keys.push(data);
+}
 
-  if (record.used) return record.deviceId === deviceId;
+export async function validateKey(key: string, deviceId: string) {
+  const found = keys.find(k => k.key === key);
 
-  record.used = true;
-  record.deviceId = deviceId;
+  if (!found) return false;
+  if (found.used && found.deviceId !== deviceId) return false;
+
+  found.used = true;
+  found.deviceId = deviceId;
   return true;
 }
