@@ -1,26 +1,23 @@
+"use client";
 
-'use client';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import { BottomNav } from '@/components/bottom-nav';
-import { PostGrid } from '@/components/post-grid';
-import { ProfileHeader } from '@/components/profile-header';
-import { ProfileStats } from '@/components/profile-stats';
-import { Bio } from '@/components/bio';
-import { ActionButtons } from '@/components/action-buttons';
-import { ProfessionalDashboard } from '@/components/professional-dashboard';
+export default function Home() {
+  const router = useRouter();
 
-export default function InstaMockPage() {
+  useEffect(() => {
+    const access = localStorage.getItem("access");
+    if (!access) {
+      router.push("/lock");
+    }
+  }, []);
+
   return (
-    <div className="flex flex-col h-full">
-      <ProfileHeader />
-      <main className="flex-1 overflow-y-auto p-4">
-        <ProfileStats />
-        <Bio />
-        <ProfessionalDashboard />
-        <ActionButtons />
-        <PostGrid />
-      </main>
-      <BottomNav />
-    </div>
+    <main style={{ padding: 40 }}>
+      <h1>✅ Website Unlocked</h1>
+      <p>Access granted. You are inside the app.</p>
+    </main>
   );
 }
+
