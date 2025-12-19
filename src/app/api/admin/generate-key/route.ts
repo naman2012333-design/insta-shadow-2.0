@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
-import { createKey } from "@/lib/keyStore";
+import { db } from "@/lib/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export async function POST() {
-  try {
-    const key = createKey();
-    return NextResponse.json({ success: true, key });
-  } catch {
-    return NextResponse.json({ success: false }, { status: 500 });
-  }
+  const key = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  await setDoc(doc(db, "keys", key), {
+    deviceId: null,
+    createdAt: serverTimestamp(),
+  });
+
+  return NextResponse.json({ success: true, key });
 }
