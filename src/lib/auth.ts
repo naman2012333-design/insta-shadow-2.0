@@ -1,18 +1,33 @@
-export const ADMIN_KEY = "123456"; // 🔐 change later
+// src/lib/auth.ts
 
-export function isAdminUnlocked(): boolean {
-  if (typeof window === "undefined") return false;
-  return localStorage.getItem("admin_unlocked") === "true";
-}
+export function getDeviceId(): string {
+  if (typeof window === "undefined") return "";
 
-export function unlockAdmin(key: string): boolean {
-  if (key === ADMIN_KEY) {
-    localStorage.setItem("admin_unlocked", "true");
-    return true;
+  let id = localStorage.getItem("device_id");
+
+  if (!id) {
+    id =
+      (crypto && "randomUUID" in crypto)
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2) + Date.now().toString(36);
+
+    localStorage.setItem("device_id", id);
   }
-  return false;
+
+  return id;
 }
 
-export function lockAdmin() {
-  localStorage.removeItem("admin_unlocked");
+export function markDeviceUnlocked() {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("device_unlocked", "true");
+}
+
+export function isDeviceUnlocked(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("device_unlocked") === "true";
+}
+
+export function logoutDevice() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("device_unlocked");
 }
