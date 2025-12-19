@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
-import { generateKey, saveKey } from "@/lib/keys";
+import { generateKey } from "@/lib/keys";
 
 export async function POST() {
-  const key = generateKey();
+  try {
+    const key = await generateKey();
 
-  await saveKey({
-    key,
-    used: false,
-    createdAt: Date.now(),
-  });
-
-  return NextResponse.json({
-    success: true,
-    key,
-  });
+    return NextResponse.json(
+      { success: true, key },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("KEY GENERATION ERROR:", error);
+    return NextResponse.json(
+      { success: false },
+      { status: 500 }
+    );
+  }
 }
