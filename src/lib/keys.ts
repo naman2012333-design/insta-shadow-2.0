@@ -1,32 +1,16 @@
-// src/lib/keys.ts
+// simple in-memory key store
 
-type KeyRecord = {
-  used: boolean;
-};
-
-const keyStore = new Map<string, KeyRecord>();
+const keys = new Set<string>();
 
 export function createKey() {
   const key = Math.random().toString(36).substring(2, 10).toUpperCase();
-
-  keyStore.set(key, { used: false });
-
+  keys.add(key);
   return key;
 }
 
-export function verifyKey(key: string) {
-  const record = keyStore.get(key);
+export function useKey(inputKey: string) {
+  if (!keys.has(inputKey)) return false;
 
-  if (!record) {
-    return false;
-  }
-
-  if (record.used) {
-    return false;
-  }
-
-  record.used = true;
-  keyStore.set(key, record);
-
+  keys.delete(inputKey); // 1 key = 1 device
   return true;
 }
