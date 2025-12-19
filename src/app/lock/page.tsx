@@ -6,36 +6,41 @@ export default function LockPage() {
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
 
-  async function unlock() {
+  async function submitKey() {
     const deviceId =
-      localStorage.getItem("deviceId") ||
+      localStorage.getItem("device_id") ||
       crypto.randomUUID();
 
-    localStorage.setItem("deviceId", deviceId);
+    localStorage.setItem("device_id", deviceId);
 
-    const res = await fetch("/api/unlock", {
+    const res = await fetch("/api/validate-key", {
       method: "POST",
       body: JSON.stringify({ key, deviceId }),
     });
 
-    if (res.ok) {
-      localStorage.setItem("unlocked", "true");
-      window.location.href = "/";
-    } else {
-      setError("Invalid or already used key");
+    const data = await res.json();
+
+    if (!data.valid) {
+      setError(data.reason);
+      return;
     }
+
+    localStorage.setItem("unlocked", "true");
+    window.location.href = "/";
   }
 
   return (
-    <main style={{ color: "white", textAlign: "center", marginTop: 100 }}>
+    <main style={{ color: "#fff", textAlign: "center" }}>
       <h1>🔒 Website Locked</h1>
+
       <input
-        value={key}
-        onChange={e => setKey(e.target.value)}
         placeholder="Enter access key"
+        value={key}
+        onChange={(e) => setKey(e.target.value)}
       />
-      <br /><br />
-      <button onClick={unlock}>Unlock</button>
+
+      <button onClick={submitKey}>Unlock</button>
+
       {error && <p style={{ color: "red" }}>{error}</p>}
     </main>
   );
