@@ -4,12 +4,12 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const unlocked = req.cookies.get("unlocked")?.value;
 
-  const isProtected =
+  if (
+    !unlocked &&
     !req.nextUrl.pathname.startsWith("/lock") &&
     !req.nextUrl.pathname.startsWith("/api") &&
-    !req.nextUrl.pathname.startsWith("/admin");
-
-  if (isProtected && unlocked !== "true") {
+    !req.nextUrl.pathname.startsWith("/admin")
+  ) {
     return NextResponse.redirect(new URL("/lock", req.url));
   }
 
