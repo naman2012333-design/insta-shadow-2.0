@@ -1,65 +1,24 @@
 "use client";
-
 import { useState } from "react";
 
 export default function AdminPage() {
-  const [key, setKey] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [key, setKey] = useState("");
+  const [err, setErr] = useState("");
 
-  const generateKey = async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch("/api/admin/generate-key", {
-        method: "POST",
-      });
-
-      const data = await res.json();
-
-      if (!data.success) throw new Error("Failed");
-
-      setKey(data.key);
-    } catch {
-      setError("Failed to generate key");
-    } finally {
-      setLoading(false);
-    }
+  const generate = async () => {
+    setErr("");
+    const res = await fetch("/api/admin/generate-key", { method: "POST" });
+    const data = await res.json();
+    if (!data.success) return setErr("Failed");
+    setKey(data.key);
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#000",
-        color: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <h2>ADMIN DASHBOARD</h2>
-
-      <button
-        onClick={generateKey}
-        disabled={loading}
-        style={{
-          marginTop: 16,
-          padding: "12px 20px",
-          background: "#16a34a",
-          color: "#fff",
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
-      >
-        {loading ? "Generating..." : "Generate New Key"}
-      </button>
-
-      {key && <p style={{ marginTop: 20 }}>🔑 {key}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div style={{ textAlign: "center", marginTop: 120 }}>
+      <h2>ADMIN</h2>
+      <button onClick={generate}>Generate Key</button>
+      {key && <p>🔑 {key}</p>}
+      {err && <p style={{ color: "red" }}>{err}</p>}
     </div>
   );
 }
