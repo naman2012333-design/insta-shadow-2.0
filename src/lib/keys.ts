@@ -1,16 +1,27 @@
-// simple in-memory key store
+type KeyRecord = {
+  key: string;
+  used: boolean;
+};
 
-const keys = new Set<string>();
+const keyStore: Record<string, KeyRecord> = {};
 
-export function createKey() {
+export function generateKey() {
   const key = Math.random().toString(36).substring(2, 10).toUpperCase();
-  keys.add(key);
+
+  keyStore[key] = {
+    key,
+    used: false,
+  };
+
   return key;
 }
 
-export function useKey(inputKey: string) {
-  if (!keys.has(inputKey)) return false;
+export function verifyKey(inputKey: string) {
+  const record = keyStore[inputKey];
 
-  keys.delete(inputKey); // 1 key = 1 device
+  if (!record) return false;
+  if (record.used) return false;
+
+  record.used = true;
   return true;
 }
