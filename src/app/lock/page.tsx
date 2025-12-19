@@ -13,6 +13,7 @@ export default function LockPage() {
 
   const unlock = async () => {
     setError("");
+
     const deviceId = localStorage.getItem("deviceId");
 
     const res = await fetch("/api/verify-key", {
@@ -22,8 +23,9 @@ export default function LockPage() {
     });
 
     const data = await res.json();
+
     if (!data.success) {
-      setError("❌ This key is already used on another device");
+      setError("❌ Invalid or already used key");
       return;
     }
 
@@ -34,7 +36,11 @@ export default function LockPage() {
   return (
     <div style={{ textAlign: "center", marginTop: 120 }}>
       <h2>🔒 Website Locked</h2>
-      <input value={key} onChange={(e) => setKey(e.target.value)} />
+      <input
+        value={key}
+        onChange={(e) => setKey(e.target.value)}
+        placeholder="Enter key"
+      />
       <br /><br />
       <button onClick={unlock}>Unlock</button>
       {error && <p style={{ color: "red" }}>{error}</p>}
