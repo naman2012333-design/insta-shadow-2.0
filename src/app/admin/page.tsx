@@ -3,49 +3,40 @@
 import { useState } from "react";
 
 export default function AdminPage() {
-  const [key, setKey] = useState<string | null>(null);
+  const [key, setKey] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const generateKey = async () => {
-    setLoading(true);
+  async function generateKey() {
     setError("");
-    setKey(null);
+    setKey("");
 
-    try {
-      const res = await fetch("/api/admin/generate-key", {
-        method: "POST",
-      });
+    const res = await fetch("/api/admin/generate-key", {
+      method: "POST",
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok || !data.success) {
-        throw new Error("Failed");
-      }
-
-      setKey(data.key);
-    } catch (err) {
+    if (!data.success) {
       setError("Failed to generate key");
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
+
+    setKey(data.key);
+  }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#000",
-        color: "#fff",
-        flexDirection: "column",
-        gap: "16px",
-      }}
-    >
+    <div style={{ textAlign: "center", marginTop: 120 }}>
       <h2>✅ ADMIN DASHBOARD</h2>
 
-      <button
-        onClick={generateKey}
-        disabled={loading}
+      <button onClick={generateKey}>Generate New Key</button>
+
+      {key && (
+        <p>
+          🔑 <b>{key}</b>
+        </p>
+      )}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+    </div>
+  );
+}
