@@ -3,7 +3,10 @@ import { db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export async function POST() {
-  const key = Math.random().toString(36).substring(2, 10).toUpperCase();
+  const key = Math.random()
+    .toString(36)
+    .substring(2, 10)
+    .toUpperCase();
 
   await setDoc(doc(db, "keys", key), {
     deviceId: null,
