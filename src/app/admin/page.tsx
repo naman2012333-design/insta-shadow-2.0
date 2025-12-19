@@ -3,40 +3,75 @@
 import { useState } from "react";
 
 export default function AdminPage() {
-  const [key, setKey] = useState("");
+  const [key, setKey] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function generateKey() {
+  const generateKey = async () => {
+    setLoading(true);
     setError("");
-    setKey("");
+    setKey(null);
 
-    const res = await fetch("/api/admin/generate-key", {
-      method: "POST",
-    });
+    try {
+      const res = await fetch("/api/admin/generate-key", {
+        method: "POST",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!data.success) {
+      if (!data.success) {
+        throw new Error("Failed");
+      }
+
+      setKey(data.key);
+    } catch (err) {
       setError("Failed to generate key");
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    setKey(data.key);
-  }
+  };
 
   return (
-    <div style={{ textAlign: "center", marginTop: 120 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#000",
+        color: "#fff",
+      }}
+    >
       <h2>✅ ADMIN DASHBOARD</h2>
 
-      <button onClick={generateKey}>Generate New Key</button>
+      <button
+        onClick={generateKey}
+        disabled={loading}
+        style={{
+          padding: "12px 20px",
+          background: "#16a34a",
+          color: "#fff",
+          border: "none",
+          borderRadius: 6,
+          cursor: "pointer",
+          marginTop: 16,
+        }}
+      >
+        {loading ? "Generating..." : "Generate New Key"}
+      </button>
 
       {key && (
-        <p>
+        <p style={{ marginTop: 20, fontSize: 18 }}>
           🔑 <b>{key}</b>
         </p>
       )}
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && (
+        <p style={{ marginTop: 12, color: "red" }}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }
