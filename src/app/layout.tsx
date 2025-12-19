@@ -1,34 +1,29 @@
+"use client";
 
-import type { Metadata } from 'next';
-import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
-import { InstaMockDataProvider } from '@/hooks/use-instamock-data';
-
-export const metadata: Metadata = {
-  title: 'InstaMock',
-  description: 'A mock Instagram profile page built with Firebase Studio',
-};
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import "./globals.css";
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const access = localStorage.getItem("access");
+    const currentPath = window.location.pathname;
+
+    // Agar locked hai aur lock page par nahi ho
+    if (!access && currentPath !== "/lock") {
+      router.push("/lock");
+    }
+  }, []);
+
   return (
-    <html lang="en" className="dark">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-      </head>
-      <body className="font-sans antialiased" suppressHydrationWarning={true}>
-        <InstaMockDataProvider>
-          <div className="bg-background flex justify-center">
-            <div className="w-full max-w-sm min-h-screen bg-background text-foreground flex flex-col">
-              {children}
-            </div>
-          </div>
-          <Toaster />
-        </InstaMockDataProvider>
-      </body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   );
 }
