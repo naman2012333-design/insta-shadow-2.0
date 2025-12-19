@@ -1,19 +1,24 @@
 import { NextResponse } from "next/server";
-import { useKey } from "@/lib/keys";
+import { verifyKey } from "@/lib/keys";
 
 export async function POST(req: Request) {
   const { key } = await req.json();
 
-  const valid = useKey(key);
+  const isValid = verifyKey(key);
 
-  if (!valid) {
-    return NextResponse.json({ success: false });
+  if (!isValid) {
+    return NextResponse.json(
+      { success: false },
+      { status: 401 }
+    );
   }
 
   const res = NextResponse.json({ success: true });
+
+  // Device binding (1 key = 1 device)
   res.cookies.set("unlocked", "true", {
+    httpOnly: true,
     path: "/",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
   });
 
   return res;
