@@ -9,7 +9,7 @@ export async function POST() {
       success: true,
       key,
     });
-  } catch (e) {
+  } catch (error) {
     return NextResponse.json(
       { success: false },
       { status: 500 }
