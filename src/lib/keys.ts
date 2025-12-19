@@ -1,29 +1,39 @@
-import crypto from "crypto";
+import { db } from "./firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
-type KeyData = {
-  key: string;
-  used: boolean;
-  createdAt: number;
-  deviceId?: string;
-};
-
-let keys: KeyData[] = [];
-
-export function generateKey() {
-  return crypto.randomBytes(4).toString("hex").toUpperCase();
-}
-
-export async function saveKey(data: KeyData) {
-  keys.push(data);
+export async function saveKey(key: string) {
+  await setDoc(doc(db, "keys", key), {
+    used: false,
+    deviceId: null,
+    createdAt: Date.now(),
+  });
 }
 
 export async function validateKey(key: string, deviceId: string) {
-  const found = keys.find(k => k.key === key);
+  const ref = doc(db, "keys", key);
+  const snap = await getDoc(ref);
 
-  if (!found) return false;
-  if (found.used && found.deviceId !== deviceId) return false;
+  if (!snap.exists()) return { valid: false, reason: "Invalid key" };
 
-  found.used = true;
-  found.deviceId = deviceId;
-  return true;
+  const data = snap.data();
+
+  if (data.used && data.deviceId !== deviceId) {
+    return { valid: false, reason: "Key already used on another device" };
+  }
+
+  if (!data.used) {
+    await updateDoc(ref, {
+      used: true,
+      deviceId,
+      usedAt: Date.now(),
+    });
+  }
+
+  return { valid: true };
 }
