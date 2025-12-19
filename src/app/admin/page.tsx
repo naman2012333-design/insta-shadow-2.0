@@ -10,7 +10,6 @@ export default function AdminPage() {
   const generateKey = async () => {
     setLoading(true);
     setError("");
-    setKey(null);
 
     try {
       const res = await fetch("/api/admin/generate-key", {
@@ -19,12 +18,10 @@ export default function AdminPage() {
 
       const data = await res.json();
 
-      if (!data.success) {
-        throw new Error("Failed");
-      }
+      if (!data.success) throw new Error("Failed");
 
       setKey(data.key);
-    } catch (err) {
+    } catch {
       setError("Failed to generate key");
     } finally {
       setLoading(false);
@@ -35,43 +32,34 @@ export default function AdminPage() {
     <div
       style={{
         minHeight: "100vh",
+        background: "#000",
+        color: "#fff",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        background: "#000",
-        color: "#fff",
       }}
     >
-      <h2>✅ ADMIN DASHBOARD</h2>
+      <h2>ADMIN DASHBOARD</h2>
 
       <button
         onClick={generateKey}
         disabled={loading}
         style={{
+          marginTop: 16,
           padding: "12px 20px",
           background: "#16a34a",
           color: "#fff",
           border: "none",
           borderRadius: 6,
           cursor: "pointer",
-          marginTop: 16,
         }}
       >
         {loading ? "Generating..." : "Generate New Key"}
       </button>
 
-      {key && (
-        <p style={{ marginTop: 20, fontSize: 18 }}>
-          🔑 <b>{key}</b>
-        </p>
-      )}
-
-      {error && (
-        <p style={{ marginTop: 12, color: "red" }}>
-          {error}
-        </p>
-      )}
+      {key && <p style={{ marginTop: 20 }}>🔑 {key}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
