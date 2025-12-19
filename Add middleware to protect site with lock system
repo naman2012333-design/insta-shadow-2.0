@@ -2,15 +2,16 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const unlocked = req.cookies.get("unlocked");
+  const unlocked = req.cookies.get("unlocked")?.value;
 
-  if (!unlocked && req.nextUrl.pathname !== "/lock") {
+  const isProtected =
+    !req.nextUrl.pathname.startsWith("/lock") &&
+    !req.nextUrl.pathname.startsWith("/api") &&
+    !req.nextUrl.pathname.startsWith("/admin");
+
+  if (isProtected && unlocked !== "true") {
     return NextResponse.redirect(new URL("/lock", req.url));
   }
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ["/((?!api|_next|favicon.ico).*)"],
-};
