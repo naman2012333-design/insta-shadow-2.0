@@ -1,24 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const unlocked = request.cookies.get("unlocked")?.value;
+export function middleware(req: NextRequest) {
+  const unlocked = req.cookies.get("unlocked");
 
-  const protectedPaths = ["/", "/admin"];
-
-  const isProtected = protectedPaths.some(
-    (path) =>
-      request.nextUrl.pathname === path ||
-      request.nextUrl.pathname.startsWith(path + "/")
-  );
-
-  if (isProtected && !unlocked) {
-    return NextResponse.redirect(new URL("/lock", request.url));
+  if (!unlocked && req.nextUrl.pathname !== "/lock") {
+    return NextResponse.redirect(new URL("/lock", req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/admin/:path*"],
+  matcher: ["/((?!api|_next|favicon.ico).*)"],
 };
