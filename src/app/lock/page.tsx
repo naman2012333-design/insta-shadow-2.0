@@ -1,49 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { unlockAdmin } from "@/lib/auth";
 
 export default function LockPage() {
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter();
 
-  function handleUnlock() {
-    const ok = unlockAdmin(key);
-    if (ok) {
-      router.push("/admin");
+  async function unlock() {
+    const deviceId =
+      localStorage.getItem("deviceId") ||
+      crypto.randomUUID();
+
+    localStorage.setItem("deviceId", deviceId);
+
+    const res = await fetch("/api/unlock", {
+      method: "POST",
+      body: JSON.stringify({ key, deviceId }),
+    });
+
+    if (res.ok) {
+      localStorage.setItem("unlocked", "true");
+      window.location.href = "/";
     } else {
-      setError("❌ Invalid Key");
+      setError("Invalid or already used key");
     }
   }
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "black",
-      color: "white",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 16
-    }}>
-      <h1>🔒 Admin Locked</h1>
-
+    <main style={{ color: "white", textAlign: "center", marginTop: 100 }}>
+      <h1>🔒 Website Locked</h1>
       <input
-        type="password"
-        placeholder="Enter admin key"
         value={key}
-        onChange={(e) => setKey(e.target.value)}
-        style={{ padding: 10 }}
+        onChange={e => setKey(e.target.value)}
+        placeholder="Enter access key"
       />
-
-      <button onClick={handleUnlock} style={{ padding: 10 }}>
-        Unlock
-      </button>
-
+      <br /><br />
+      <button onClick={unlock}>Unlock</button>
       {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+    </main>
   );
 }
