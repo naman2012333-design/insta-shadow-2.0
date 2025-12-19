@@ -1,30 +1,35 @@
 "use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function LockPage() {
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
 
-  async function unlock() {
+  useEffect(() => {
+    if (!localStorage.getItem("deviceId")) {
+      localStorage.setItem("deviceId", crypto.randomUUID());
+    }
+  }, []);
+
+  const unlock = async () => {
     setError("");
+    const deviceId = localStorage.getItem("deviceId");
 
     const res = await fetch("/api/verify-key", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key }),
+      body: JSON.stringify({ key, deviceId }),
     });
 
     const data = await res.json();
-
     if (!data.success) {
-      setError("Invalid or already used key");
+      setError("❌ This key is already used on another device");
       return;
     }
 
     document.cookie = "unlocked=true; path=/";
     window.location.href = "/";
-  }
+  };
 
   return (
     <div style={{ textAlign: "center", marginTop: 120 }}>
