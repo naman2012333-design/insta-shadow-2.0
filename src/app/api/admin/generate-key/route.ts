@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { generateKey } from "@/lib/keys";
+import { createKey } from "@/lib/keyStore";
 
 export async function POST() {
-  const key = generateKey();
-
-  return NextResponse.json({
-    success: true,
-    key,
-  });
+  try {
+    const key = createKey();
+    return NextResponse.json({ success: true, key });
+  } catch {
+    return NextResponse.json({ success: false }, { status: 500 });
+  }
 }
