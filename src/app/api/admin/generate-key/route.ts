@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
-import { generateKey } from "@/lib/keys";
+import { generateKey, saveKey } from "@/lib/keys";
 
 export async function POST() {
   const key = generateKey();
-  return NextResponse.json({ key });
+
+  await saveKey({
+    key,
+    used: false,
+    createdAt: Date.now(),
+  });
+
+  return NextResponse.json({
+    success: true,
+    key,
+  });
 }
