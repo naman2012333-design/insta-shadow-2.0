@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
+import { createKey } from "@/lib/keys";
 
 export async function POST() {
   try {
-    const key = Math.random()
-      .toString(36)
-      .substring(2, 10)
-      .toUpperCase();
+    const key = createKey();
 
     return NextResponse.json({
       success: true,
       key,
     });
-  } catch (error) {
+  } catch (e) {
     return NextResponse.json(
       { success: false },
       { status: 500 }
